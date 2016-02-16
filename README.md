@@ -4,63 +4,49 @@ This is an application that makes use of Couchbase, Express Framework, Angular 2
 
 Messages are sent to and from the Node.js server to the client.  Messages are stored in Couchbase to be accessed during the next session.
 
-## Prerequisites
+## Docker
 
-There are not many prerequisites required to build and run this project, but you'll need the following:
+We're using docker-compose to setup two containers, one for couchbase and another for nodejs server.
 
-* Node.js
-* Node Package Manager
-* Couchbase Server 4+
+In order to launch the chat app, you just need to have **docker** and **docker-compose** installed:
 
-## Installation & Configuration
+* docker +1.10.0
+* docker +1.6.0  
 
-Certain configuration in both the application and the database must be done before this project is usable.
-
-### Application
-
-Checkout the latest master branch from GitHub and navigate into it using your Terminal (Mac & Linux) or Command Prompt (Windows).  Assuming you already have Node.js installed, run the following:
+With docker installed, you need to build the image and launch a container:
 
 ```
-npm install
+$ cd <repo-directory>
+$ docker-compose build
+$ docker-compose up
 ```
 
-This will install all dependencies as defined in the **package.json** file.
-
-### Database
-
-This project requires Couchbase 4.0 or higher in order to function because it makes use of the N1QL query language.  With Couchbase Server installed, create a new bucket called **web-chat** or whatever you've named it in your **config.json** file.
-
-We're not done yet.  In order to use N1QL queries in your application you must create a primary index on your bucket.  This can be done by using the Couchbase Query Client (CBQ).
-
-On Mac, run the following to launch CBQ:
+After that, you need to initiate couchbase configuration. You can do it by using the UI avaiable on ``http://localhost:8091`` or by connecting in the running docker container and use the ``couchbase-cli``.
 
 ```
-./Applications/Couchbase Server.app/Contents/Resources/couchbase-core/bin/cbq
+$ docker ps
+# get container id of couchbase container
+$ docker exec -i -t <couchbase-container-id> bash
+root@container$ couchbase-cli cluster-init -c localhost:8091 \
+    --cluster-username=admin --cluster-password=testing --cluster-init-ramsize=600  \
+    -u Administrator -p password  
+root@container$ couchbase-cli bucket-create -c localhost:8091 -u admin -p testing  --bucket=web-chat \
+      --bucket-type=couchbase  \
+      --bucket-port=11222  \
+      --bucket-ramsize=500  \
+      --bucket-replica=1
 ```
 
-On Windows, run the following to launch CBQ:
-
-```
-C:/Program Files/Couchbase/Server/bin/cbq.exe
-```
-
-With CBQ running, create an index like so:
+You can also create an index:
 
 ```
 CREATE PRIMARY INDEX ON `web-chat` USING GSI;
 ```
 
-Your database is now ready for use.
 
 ## Testing
 
-With all dependencies installed and Couchbase Server configured, run the following from your Command Prompt or Terminal:
-
-```
-node app.js
-```
-
-Now when you visit **http://localhost:3000** from your web browser you will be able to use the application.
+Now when you visit **http://localhost:3010** from your web browser you will be able to use the application.
 
 ## Resources
 
