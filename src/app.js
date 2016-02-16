@@ -30,6 +30,6 @@ io.on("connection", function(socket){
     });
 });
 
-server.listen(3000, function () {
+server.listen(3010, function () {
     console.log("Listening on port %s...", server.address().port);
 });
